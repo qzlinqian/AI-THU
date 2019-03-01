@@ -43,12 +43,17 @@ def fruitCost(fruit, numPounds, fruitShop):
     fruitShop.fruitPrices['apples'] or fruitShop.getCostPerPound('apples').
     """
     "*** YOUR CODE HERE ***"
+    costPerPound = fruitShop.getCostPerPound(fruit)
+    if costPerPound:
+        return numPounds * costPerPound
+    else:
+        return 0
     raise util.raiseNotDefined()
     
     
 if __name__ == '__main__':
     "This code runs when you invoke the script from the command line"
-    fruitPrices = {'apples':5, 'oranges': 3, 'pears': 4}
+    fruitPrices = {'apples': 5, 'oranges': 3, 'pears': 4}
     shop = FruitShop('shop', fruitPrices)
     print("The cost of 4 pounds of apples is", fruitCost('apples', 4, shop))
     print("The cost of 5 pounds of oranges is", fruitCost('oranges', 5, shop))

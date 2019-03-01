@@ -15,43 +15,52 @@
 """
 To run this script, type
 
-  python buyCheapFruit.py
+  python buyTwoFruits.py
 
 Once you have correctly implemented the buyLotsOfFruit function,
 the script should produce the output:
 
 Welcome to shop fruit shop
-By fruit with unit price <=6, cost of [('apples', 2), ('pears', 3), ('limes', 4)] is 22
-By fruit with unit price <=4, cost of [('apples', 2), ('pears', 3), ('oranges', 2)] is 18
-By fruit with unit price <=4, cost of [('apples', 2), ('pears', 3), ('limes', 4)] is 12
+The sum of unit prices of ('oranges', 'pears') is 7
+The sum of unit prices of ('apples', 'oranges') is 8
+The sum of unit prices of ('apples', 'strawberries') is 13
 """
 from __future__ import print_function
 from shop import FruitShop
 import util
 
 
-def buyCheapFruit(orderList, maxPrice, fruitShop):
+def buyTwoKindsOfFruit(totalCost, fruitShop):
     """
         orderList: List of (fruit, numPounds) tuples
-        maxPrice: The maximum price. We only buy fruit with the unit price cheaper than maxPrice
+        totalCost: 
         fruitShop: The FruitShop class
 
-    Returns the cost of order. Only the fruit in the orderList and
-    cheaper than maxPrice is bought.
+    Returns two kinds of fruits such that the sum of unit prices is totalCost.
     """
-    totalCost = 0.0
     "*** YOUR CODE HERE ***"
+    fruitList = sorted(fruitShop.fruitPrices.items(), key=lambda fruit : fruit[1])  # Sort by value
+
+    i = 0
+    j = len(fruitShop.fruitPrices) - 1
+    while i < j:
+        if fruitList[i][1] + fruitList[j][1] < totalCost:
+            i += 1
+        else:
+            if fruitList[i][1] + fruitList[j][1] > totalCost:
+                j -= 1
+            else:
+                # return "('"+fruitList[i][0]+"', '"+fruitList[j][0]+"')"
+                return fruitList[i][0], fruitList[j][0]
+    return None
     raise util.raiseNotDefined()
     
 
 # Main Method
 if __name__ == '__main__':
     "This code runs when you invoke the script from the command line"
-    fruitPrices = {'apples':5, 'oranges': 3, 'pears': 4}
+    fruitPrices = {'apples': 5, 'oranges': 3, 'pears': 4, 'limes': 6, 'strawberries': 8}
     shop = FruitShop('shop', fruitPrices)
-    orderList1 = [('apples', 2), ('pears', 3), ('limes', 4)]
-    print('By fruit with unit price <=6, cost of', orderList1, 'is', buyCheapFruit(orderList1, 6, shop))
-    orderList2 = [('apples', 2), ('pears', 3), ('oranges', 2)]
-    print('By fruit with unit price <=4, cost of', orderList2, 'is', buyCheapFruit(orderList2, 4, shop))
-    orderList3 = [('apples', 2), ('pears', 3), ('limes', 4)]
-    print('By fruit with unit price <=4, cost of', orderList3, 'is', buyCheapFruit(orderList3, 4, shop))
+    print('The sum of unit prices of', buyTwoKindsOfFruit(7, shop), 'is', 7)
+    print('The sum of unit prices of', buyTwoKindsOfFruit(8, shop), 'is', 8)
+    print('The sum of unit prices of', buyTwoKindsOfFruit(13, shop), 'is', 13)
