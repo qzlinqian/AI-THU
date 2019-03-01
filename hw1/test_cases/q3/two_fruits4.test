@@ -1,0 +1,19 @@
+class: "EvalTest"
+success: "buyTwoKindsOfFruit(totalCost,fruitShop) returns the correct result"
+failure: """
+buyTwoKindsOfFruit(totalCost,fruitShop) must return the correct result
+            fruitPrices: {'apples':5, 'oranges': 3, 'pears': 4, 'limes': 6, 'strawberries': 8}
+            totalCost: 14
+"""
+points: "0.5"
+
+preamble: """
+from shop import FruitShop
+fruitPrices = {'apples':5, 'oranges': 3, 'pears': 4, 'limes': 6, 'strawberries': 8}
+shop = FruitShop('shop', fruitPrices)
+ans = tuple(sorted(buyTwoFruits.buyTwoKindsOfFruit(14, shop)))
+"""
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "ans"

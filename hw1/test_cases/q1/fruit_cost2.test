@@ -1,0 +1,19 @@
+class: "EvalTest"
+success: "fruitCost(fruit,numPounds,fruitShop) returns the correct cost"
+failure: """
+fruitCost(fruit,numPounds,fruitShop) must return the correct cost
+            fruitPrices: {'apples':5, 'oranges': 3, 'pears': 4, 'limes': 6, 'strawberries': 8}
+            fruit: 'strawberries'
+            pounds: 8
+"""
+
+preamble: """
+from shop import FruitShop
+fruitPrices = {'apples':5, 'oranges': 3, 'pears': 4, 'limes': 6, 'strawberries': 8}
+shop = FruitShop('shop', fruitPrices)
+ans = fruitCost.fruitCost('strawberries', 8, shop)
+"""
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "ans"
