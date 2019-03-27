@@ -347,7 +347,7 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 nextState = (nextx, nexty)
-                for i in range(0,4):
+                for i in range(0, 4):
                     if nextState == self.corners[i]:
                         corner_stat |= self.corner_index[i]
                 successors.append(((nextState, corner_stat), action, 1))
@@ -491,27 +491,13 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    bottom = problem.walls.height - 1  # bottom boundary. Initially set as top of potential food
-    top = 0  # Bottom
-    right = 0  # Left 
-    left = problem.walls.width - 1 # right
-    food_list = foodGrid.asList()
-    # xList = []
-    # yList = []
-    for food_pos in food_list:
-        x, y = food_pos
-        # xList.append(x)
-        # yList.append(y)
-        if x < left:
-            left = x
-        if x > right:
-            right = x
-        if y < bottom:
-            bottom = y
-        if y > top:
-            top = y
-    if top == 0:  # food_list = []
+    if len(foodGrid.asList()) == 0:
         return 0
+    xList, yList = zip(*foodGrid.asList())
+    left = min(xList)
+    right = max(xList)
+    top = max(yList)
+    bottom = min(yList)
     cost = top - bottom + right - left
     top = abs(top - position[1])
     bottom = abs(bottom - position[1])
@@ -556,6 +542,28 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        # Just use BFS!
+        waiting_list = util.Queue()
+        state = startPosition
+        visited = util.Counter()
+        visited[state] = [state, 0]
+
+        while (not problem.isGoalState(state)):
+            successors = problem.getSuccessors(state)
+            for successor in successors:
+                if successor[0] not in visited:
+                    visited[successor[0]] = [state, successor[1]]
+                    waiting_list.push(successor)
+            if waiting_list.isEmpty():
+                break
+            state = waiting_list.pop()[0]
+        actions = util.Queue()
+        while not state == startPosition:
+            father = visited[state]
+            actions.push(father[1])
+            state = father[0]
+
+        return actions.list
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -592,7 +600,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        if (len(self.food) == 1) and self.food[0] = state
+        return self.food[x][y]
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):

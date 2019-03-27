@@ -95,31 +95,29 @@ def depthFirstSearch(problem):
     # print("Start:", problem.getStartState())
     # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    waiting_list = util.Stack()
+    waiting_list = util.Stack()  # Reduce the time of call getSuccessors()
     visited = util.Counter()  # Use dictionary
     # [father's state(x,y position), action needed from father to it, cost to get it, status]
     start = problem.getStartState()  # For future use
     state = start
-    visited[state] = [state, 0, 0, Status.VISITED]  # Add it into the visited list
-    successors = problem.getSuccessors(state)
-    for successor in successors:
-        visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
-        waiting_list.push(successor)
-    state = waiting_list.pop()[0]
+    visited[state] = [state, 0, Status.DISCOVERED]  # Add it into the visited list
 
     while (not problem.isGoalState(state)):
-        visited[state][3] = Status.VISITED
+        visited[state][2] = Status.VISITED
         successors = problem.getSuccessors(state)
-        for successor in successors:
-            if successor[0] not in visited or visited[successor[0]][3] != Status.VISITED:
-                visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
+        for successor in successors:  # DFS would update the nodes even already in the wl.
+            if successor[0] not in visited or visited[successor[0]][2] != Status.VISITED:
+                visited[successor[0]] = [state, successor[1], Status.DISCOVERED]  # It would be the son of the one who last touch it before visited.
                 waiting_list.push(successor)
         if waiting_list.isEmpty():
             break
         state = waiting_list.pop()[0]
-    actions = util.Queue()
+        while visited[state][2] == Status.VISITED:  # The nodes added in the wl before might have been visited
+            state = waiting_list.pop()[0]
+
+    actions = util.Queue()  # Store the actions
     while not state == start:
-        father = visited[state]
+        father = visited[state]  # According to the father information recoreded before
         motion = father[1]
         # for i in range(0, father[2]): one step once, so no need of cost
         actions.push(motion)
@@ -134,33 +132,22 @@ def breadthFirstSearch(problem):
     waiting_list = util.Queue()
     start = problem.getStartState()
     state = start
-    # print("start:", start)
     visited = util.Counter()
-    visited[state] = [state, 0, 0, Status.VISITED]
-    successors = problem.getSuccessors(state)
-    for successor in successors:
-        visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
-        waiting_list.push(successor)
-        # print("sons:", successor)
-    state = waiting_list.pop()[0]
+    visited[state] = [state, 0]  # Add it to the visited list
+
     while (not problem.isGoalState(state)):
-        # print("state:", state)
-        visited[state][3] = Status.VISITED
         successors = problem.getSuccessors(state)
-        for successor in successors:
-            if successor[0] not in visited: # or visited[successor[0]][3] != Status.VISITED:
-                visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
+        for successor in successors:  # BFS won't update the nodes already in the list -- they have already been reached before
+            if successor[0] not in visited:
+                visited[successor[0]] = [state, successor[1]]
                 waiting_list.push(successor)
-                # print("sons:", successor)
         if waiting_list.isEmpty():
             break
         state = waiting_list.pop()[0]
+
     actions = util.Queue()
     while not state == start:
-        # print("decide:", state)
         father = visited[state]
-        # motion = father[1]
-        # for i in range(0, father[2]):
         actions.push(father[1])
         state = father[0]
 
@@ -176,15 +163,11 @@ def uniformCostSearch(problem):
     visited = util.Counter()
     # [father's state, action from father to get there, cost from start to get there]
     visited[state] = [state, 0, 0]
-    successors = problem.getSuccessors(state)
-    for successor in successors:
-        visited[successor[0]] = [state, successor[1], successor[2]]
-        waiting_list.update(successor, successor[2])
-    state = waiting_list.pop()[0]
+
     while (not problem.isGoalState(state)):
         cost_present = visited[state][2]
         successors = problem.getSuccessors(state)
-        for successor in successors:
+        for successor in successors:  # Update the node as long as a lower cost path found (before it is expanded)
             cost_new = cost_present + successor[2]
             if successor[0] not in visited or (visited[successor[0]][2] > cost_new):
                 visited[successor[0]] = [state, successor[1], cost_new]
@@ -192,11 +175,10 @@ def uniformCostSearch(problem):
         if waiting_list.isEmpty():
             return []
         state = waiting_list.pop()[0]
+
     actions = util.Queue()
     while not state == start:
         father = visited[state]
-        # motion = father[1]
-        # for i in range(0, father[2]):
         actions.push(father[1])
         state = father[0]
 
@@ -219,15 +201,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     visited = util.Counter()
     # [father's state, action from father to get there, cost from start to get there]
     visited[state] = [state, 0, 0]
-    successors = problem.getSuccessors(state)
-    for successor in successors:
-        visited[successor[0]] = [state, successor[1], successor[2]]
-        waiting_list.update(successor, successor[2] + heuristic(successor[0], problem))
-    state = waiting_list.pop()[0]
+
     while (not problem.isGoalState(state)):
         cost_present = visited[state][2]
         successors = problem.getSuccessors(state)
-        for successor in successors:
+        for successor in successors:  # Update the node as long as a new path with a lower estimated cost found (before it is expanded)
             cost_new = cost_present + successor[2]
             if successor[0] not in visited or (visited[successor[0]][2] > cost_new):
                 visited[successor[0]] = [state, successor[1], cost_new]
@@ -238,8 +216,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     actions = util.Queue()
     while not state == start:
         father = visited[state]
-        # motion = father[1]
-        # for i in range(0, father[2]):
         actions.push(father[1])
         state = father[0]
 
