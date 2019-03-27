@@ -18,6 +18,11 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+from enum import Enum
+class Status(Enum):
+    UNDISCOVERED = 0
+    DISCOVERED = 1
+    VISITED = 2
 
 class SearchProblem:
     """
@@ -90,63 +95,112 @@ def depthFirstSearch(problem):
     # print("Start:", problem.getStartState())
     # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    from game import Directions
     waiting_list = util.Stack()
-    # search_result = util.Queue()
-    if problem.isGoalState(problem.getStartState()):
-        return []
-
-    visited = {}  # Use dictionary
-
-    start = problem.getStartState() # For future use
+    visited = util.Counter()  # Use dictionary
+    # [father's state(x,y position), action needed from father to it, cost to get it, status]
+    start = problem.getStartState()  # For future use
     state = start
-    visited[state] = [state, Directions.NORTH, 0]  # Add it into the visited list
-    # waiting_list.push([state, Directions.NORTH, 0])
-    # search_result.push([state, Directions.NORTH, 0])
+    visited[state] = [state, 0, 0, Status.VISITED]  # Add it into the visited list
+    successors = problem.getSuccessors(state)
+    for successor in successors:
+        visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
+        waiting_list.push(successor)
+    state = waiting_list.pop()[0]
 
-    while not problem.isGoalState(state):
-        # print("current:", state)
+    while (not problem.isGoalState(state)):
+        visited[state][3] = Status.VISITED
         successors = problem.getSuccessors(state)
-        # if not (waiting_list.isEmpty()):
-        # print("visited:", visited)
         for successor in successors:
-            if successor[0] not in visited:
+            if successor[0] not in visited or visited[successor[0]][3] != Status.VISITED:
+                visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
                 waiting_list.push(successor)
-                visited[successor[0]] = [state, successor[1], successor[2]]
-                # print("sons:", successor[0])
-
-        # if len(successors) == 0:
-        #     search_result.pop()
-
         if waiting_list.isEmpty():
             break
-        state = waiting_list.pop()
-        # search_result.push(state)
-        state = state[0]
-
-    actions = []
-    # print(state, " start:", start)
+        state = waiting_list.pop()[0]
+    actions = util.Queue()
     while not state == start:
-        # print("state:", state)
         father = visited[state]
-        # print("father:", father)
         motion = father[1]
-        for i in range(0, father[2]):
-            actions.insert(0, motion)
-            # print(motion, ", ")
+        # for i in range(0, father[2]): one step once, so no need of cost
+        actions.push(motion)
         state = father[0]
 
-    return actions
+    return actions.list
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    waiting_list = util.Queue()
+    start = problem.getStartState()
+    state = start
+    # print("start:", start)
+    visited = util.Counter()
+    visited[state] = [state, 0, 0, Status.VISITED]
+    successors = problem.getSuccessors(state)
+    for successor in successors:
+        visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
+        waiting_list.push(successor)
+        # print("sons:", successor)
+    state = waiting_list.pop()[0]
+    while (not problem.isGoalState(state)):
+        # print("state:", state)
+        visited[state][3] = Status.VISITED
+        successors = problem.getSuccessors(state)
+        for successor in successors:
+            if successor[0] not in visited: # or visited[successor[0]][3] != Status.VISITED:
+                visited[successor[0]] = [state, successor[1], successor[2], Status.DISCOVERED]
+                waiting_list.push(successor)
+                # print("sons:", successor)
+        if waiting_list.isEmpty():
+            break
+        state = waiting_list.pop()[0]
+    actions = util.Queue()
+    while not state == start:
+        # print("decide:", state)
+        father = visited[state]
+        # motion = father[1]
+        # for i in range(0, father[2]):
+        actions.push(father[1])
+        state = father[0]
+
+    return actions.list
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    waiting_list = util.PriorityQueue()
+    start = problem.getStartState()
+    state = start
+    visited = util.Counter()
+    # [father's state, action from father to get there, cost from start to get there]
+    visited[state] = [state, 0, 0]
+    successors = problem.getSuccessors(state)
+    for successor in successors:
+        visited[successor[0]] = [state, successor[1], successor[2]]
+        waiting_list.update(successor, successor[2])
+    state = waiting_list.pop()[0]
+    while (not problem.isGoalState(state)):
+        cost_present = visited[state][2]
+        successors = problem.getSuccessors(state)
+        for successor in successors:
+            cost_new = cost_present + successor[2]
+            if successor[0] not in visited or (visited[successor[0]][2] > cost_new):
+                visited[successor[0]] = [state, successor[1], cost_new]
+                waiting_list.update(successor, cost_new)
+        if waiting_list.isEmpty():
+            return []
+        state = waiting_list.pop()[0]
+    actions = util.Queue()
+    while not state == start:
+        father = visited[state]
+        # motion = father[1]
+        # for i in range(0, father[2]):
+        actions.push(father[1])
+        state = father[0]
+
+    return actions.list
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -159,6 +213,37 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    waiting_list = util.PriorityQueue()
+    start = problem.getStartState()
+    state = start
+    visited = util.Counter()
+    # [father's state, action from father to get there, cost from start to get there]
+    visited[state] = [state, 0, 0]
+    successors = problem.getSuccessors(state)
+    for successor in successors:
+        visited[successor[0]] = [state, successor[1], successor[2]]
+        waiting_list.update(successor, successor[2] + heuristic(successor[0], problem))
+    state = waiting_list.pop()[0]
+    while (not problem.isGoalState(state)):
+        cost_present = visited[state][2]
+        successors = problem.getSuccessors(state)
+        for successor in successors:
+            cost_new = cost_present + successor[2]
+            if successor[0] not in visited or (visited[successor[0]][2] > cost_new):
+                visited[successor[0]] = [state, successor[1], cost_new]
+                waiting_list.update(successor, cost_new + heuristic(successor[0], problem))
+        if waiting_list.isEmpty():
+            return []
+        state = waiting_list.pop()[0]
+    actions = util.Queue()
+    while not state == start:
+        father = visited[state]
+        # motion = father[1]
+        # for i in range(0, father[2]):
+        actions.push(father[1])
+        state = father[0]
+
+    return actions.list
     util.raiseNotDefined()
 
 
