@@ -165,7 +165,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
             # return []
         # print("New search.")
         agentNum = gameState.getNumAgents()
-        newGameState = gameState
 
         gameTree = [[-1, 0, gameState, 0, -1],]
         start = 0
@@ -224,7 +223,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                         valueDict[fatherOrder] = [value, nodeOrder]
                         # print(fatherOrder, ":", valueDict[fatherOrder])
                 # if newStart > fatherOrder:
-                    # newStart = fatherOrder
+                    # newStart = fatherOrder   #Or some leaf nodes at the begining of a non-buttom layer would be left out
             end = start
             start = boudaries.pop()
 
@@ -254,12 +253,114 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    def miniMaxProne(self, gameState, agent, depth, alpha, beta):
+        agentNum = gameState.getNumAgents()
+        depthNum = self.depth
+        # if (agent == (agentNum-1)) and (depth == (depthNum-1)):
+        if (depth == depthNum):
+            # Leaf
+            return [self.evaluationFunction(gameState), 0]
+
+        newAgent = agent+1
+        newDepth = depth
+        if newAgent == agentNum:
+            newAgent -= agentNum
+            newDepth += 1
+
+        actions = gameState.getLegalActions(agent)
+        if len(actions) == 0:
+            return [self.evaluationFunction(gameState), 0]
+
+        if agent == 0:
+            # Max
+            bestVal = float("-inf")
+            for action in actions:
+                value = self.miniMaxProne(gameState.generateSuccessor(agent, action), newAgent, newDepth, alpha, beta)[0]
+                if value > bestVal:
+                    bestVal = value
+                    bestAction = action
+                if alpha < bestVal:
+                    alpha = bestVal
+                if beta < alpha:
+                    break
+            return [bestVal, bestAction]
+        else:
+            # Min
+            bestVal = float("inf")
+            for action in actions:
+                value = self.miniMaxProne(gameState.generateSuccessor(agent, action), newAgent, newDepth, alpha, beta)[0]
+                if value < bestVal:
+                    bestVal = value
+                    bestAction = action
+                if beta > bestVal:
+                    beta = bestVal
+                if beta < alpha:
+                    break
+            return [bestVal, bestAction]
+        # else:
+            # Others
+            # bestVal = float("inf")
+            # actions = gameState.getLegalActions(newAgent)
+            # values = [miniMaxProne(gameState.generateSuccessor(newAgent, action), newAgent, newDepth, alpha, beta) for action in actions]
+            # return min(values)
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        # agentNum = gameState.getNumAgents
+        # depth = self.depth
+        # actions = gameState.getLegalActions(0)
+        # for action in actions:
+        # values = [self.miniMaxProne(gameState.generateSuccessor(0, action), 0, 0, float("-inf"), float("inf")) for action in actions]
+        # alpha = float("-inf")
+        # beta = float("inf")
+        # bestVal = float("-inf")
+        # for action in actions:
+            # value = self.miniMaxProne(gameState.generateSuccessor(0, action), 0, 0, alpha, beta)
+            # if value > bestVal:
+                # bestVal = value
+                # bestAction = action
+        # print(values)
+        # bestIndices = [index for index in range(len(values)) if values[index] == bestVal]
+        # chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        # return actions[chosenIndex]
+        # return bestAction
+        result = self.miniMaxProne(gameState, 0, 0, float("-inf"), float("inf"))
+        # print(result[0])  # Why the value is not the same as the doc?
+        return result[1]
+
+        # waitingList = []
+        # valueDict = {}
+        # gameTree = []
+
+        # gameTree.append([gameState, -1, -1, -1, float("inf")])  # [state, father, agent, depth, value]
+        # actions = gameState.getLegalActions()
+        # waitingList.append([0, len(actions)])  # [node in tree, unexpanded nodes]
+        # # for action in actions:
+        #     # waitingList.append([gameState.generateSuccessor(0, action), 0, 0, 0])   # [state, father, agent, depth, unexpanded nodes]
+
+        # while len(waitingList) > 0:
+        #     newNode = waitingList[-1]
+        #     # nodeNum = len(gameTree)
+        #     if newNode[2] == agentNum-1 and newNode[3] == depth-1:
+        #         # Leaf
+        #         value = self.evaluationFunction(newNode[0])
+        #         gameTree[newNode[0]][4] = value
+        #         waitingList.pop()
+        #         father = gameTree[newNode[0]][1]
+        #     else:
+        #         # gameTree.append([newNode, float("-inf")])
+        #         currentAgent = newNode[2]+1
+        #         currentDepth = newNode[3]
+        #         if currentAgent == agentNum:
+        #             currentAgent -= agentNum
+        #             currentDepth += 1
+        #         actions = newNode[0].getLegalActions(currentAgent)
+        #         for action in actions:
+        #             waitingList.append([newNode[0].generateSuccessor(currentAgent, action), nodeNum, currentAgent, currentDepth])
+
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
