@@ -419,6 +419,42 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    position = currentGameState.getPacmanPosition()
+    foodGrid = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    # foodDis = [manhattanDistance(position, food) for food in foodGrid]
+    if len(foodGrid.asList()) == 0:
+        return 1
+    xList, yList = zip(*foodGrid.asList())
+    left = min(xList)
+    right = max(xList)
+    top = max(yList)
+    bottom = min(yList)
+    cost = top - bottom + right - left
+    top = abs(top - position[1])
+    bottom = abs(bottom - position[1])
+    left = abs(left - position[0])
+    right = abs(right - position[0])
+    if top > bottom:
+        cost += bottom
+    else:
+        cost += top
+    if left > right:
+        cost += right
+    else:
+        cost += left
+    value = len(ghostStates)/cost
+
+    ghostDis = [manhattanDistance(position, ghostState.getPosition()) for ghostState in ghostStates]
+    for index in range(0, len(ghostStates)):
+        dis = manhattanDistance(position, ghostStates[index].getPosition())
+        if dis == 0:
+            value -= 1.1
+        else:
+            if dis < 6 and ghostStates[index].scaredTimer < dis:
+                value -= 3/dis
+
+    return value
     util.raiseNotDefined()
 
 # Abbreviation
