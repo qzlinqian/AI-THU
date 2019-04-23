@@ -81,22 +81,17 @@ class ReflexAgent(Agent):
         for ghostState in newGhostStates:
             ghostPos = ghostState.getPosition()
             if (ghostPos == newPos):
-                # print("0")
                 value -= 41
             ghostDis = manhattanDistance(newPos, ghostPos)
             if (ghostDis > ghostState.scaredTimer):
                 value -= 40/ghostDis
         foodList = currentFood.asList()
-        # print(foodList)
         foodDis = [manhattanDistance(newPos, food) for food in foodList]
         nearestFood = min(foodDis)
-        # print("nearestFood",nearestFood)
         if (nearestFood == 0):
-            # print("yes")
             value += 41
         else:
             value += 40/nearestFood
-        # print(value)
         return value
         # return successorGameState.getScore()
 
@@ -159,92 +154,51 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        # if gameState.isLose():
-            # return []
-        # if gameState.isWin():
-            # return []
-        # print("New search.")
         agentNum = gameState.getNumAgents()
 
         gameTree = [[-1, 0, gameState, 0, -1],]
         start = 0
         end = 1
         boudaries = [-1,0,]
-        #Build the tree by layers. Every gameState.getNumAgents layers form a group
-        #Expand the former layer to build the tree
+        # Build the tree by layers. Every gameState.getNumAgents layers form a group
+        # Expand the former layer to build the tree
         for currentDepth in range(0, self.depth):
-            # newStack = []
-            # end = len(gameTree)
             for j in range(0, agentNum):
                 for nodeOrder in range(start, end):
                     actions = gameTree[nodeOrder][2].getLegalActions(j)
                     for action in actions:
                         nextState = gameTree[nodeOrder][2].generateSuccessor(j, action)
                         gameTree.append([nodeOrder, len(gameTree), nextState, action, j])
-                # if end < len(gameTree):
                 start = end
                 end = len(gameTree)
                 boudaries.append(start)
 
-        #The final (start, end) is the last layer
+        # The final (start, end) is the last layer
         valueDict = {}
-        # print("start:", start, "end:", end)
-        # for i in range(start, end):
-            # value = self.evaluationFunction(gameTree[i][2])
-            # valueDict[i] = [value, -1]
-
-        # for currentDepth in range(self.depth-1, -1, -1):
-            # for i in range(agentNum-1, -1, -1):
-        # start = boudaries.pop()
         while start == end:
             start = boudaries.pop()
         while start > -1:
-            # newStart = start
             for nodeOrder in range(start, end):
                 fatherOrder = gameTree[nodeOrder][0]
                 agent = gameTree[nodeOrder][4]
-                # print("depth:", currentDepth, ", agent:", i, ", current node:", nodeOrder, ", father:", fatherOrder)
-                # print(nodeOrder, "in dict ", nodeOrder in valueDict)
-                # value = valueDict[nodeOrder][0]
                 if nodeOrder in valueDict:
                     value = valueDict[nodeOrder][0]
                 else:
                     value = self.evaluationFunction(gameTree[nodeOrder][2])
                     valueDict[nodeOrder] = [value, -1]
-                    # continue
                 if agent == 0:
                     #Pacman
                     if (fatherOrder not in valueDict) or (valueDict[fatherOrder][0] < value):
                         valueDict[fatherOrder] = [value, nodeOrder]
-                        # print(fatherOrder, ":", valueDict[fatherOrder])
                 else:
                     #Ghost
                     if (fatherOrder not in valueDict) or (valueDict[fatherOrder][0] > value):
                         valueDict[fatherOrder] = [value, nodeOrder]
-                        # print(fatherOrder, ":", valueDict[fatherOrder])
                 # if newStart > fatherOrder:
                     # newStart = fatherOrder   #Or some leaf nodes at the begining of a non-buttom layer would be left out
             end = start
             start = boudaries.pop()
 
-        # actionList = []
-        # nodeOrder = valueDict[0][1]
-        # for depth in range(0, self.depth):
-            # for i in range(0, agentNum):
-        #     if nodeOrder == -1:
-        #         if i == 0:
-        #             return gameState.isWin()
-        #         else:
-        #             return gameState.isLose()
-                # actionList.append(gameTree[nodeOrder][3])
-                # print(i, gameTree[nodeOrder][3])
-                # if i == 0:
-                    # print(depth, valueDict[nodeOrder])
-                # nodeOrder = valueDict[nodeOrder][1]
-        # print(gameTree)
-        # print(valueDict)
-        # if len(valueDict) == 0:
-            # return []
         node = valueDict[0][1]
         return gameTree[node][3]
         util.raiseNotDefined()
@@ -297,70 +251,15 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if beta < alpha:
                     break
             return [bestVal, bestAction]
-        # else:
-            # Others
-            # bestVal = float("inf")
-            # actions = gameState.getLegalActions(newAgent)
-            # values = [miniMaxProne(gameState.generateSuccessor(newAgent, action), newAgent, newDepth, alpha, beta) for action in actions]
-            # return min(values)
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        # agentNum = gameState.getNumAgents
-        # depth = self.depth
-        # actions = gameState.getLegalActions(0)
-        # for action in actions:
-        # values = [self.miniMaxProne(gameState.generateSuccessor(0, action), 0, 0, float("-inf"), float("inf")) for action in actions]
-        # alpha = float("-inf")
-        # beta = float("inf")
-        # bestVal = float("-inf")
-        # for action in actions:
-            # value = self.miniMaxProne(gameState.generateSuccessor(0, action), 0, 0, alpha, beta)
-            # if value > bestVal:
-                # bestVal = value
-                # bestAction = action
-        # print(values)
-        # bestIndices = [index for index in range(len(values)) if values[index] == bestVal]
-        # chosenIndex = random.choice(bestIndices) # Pick randomly among the best
-        # return actions[chosenIndex]
-        # return bestAction
         result = self.miniMaxProne(gameState, 0, 0, float("-inf"), float("inf"))
         # print(result[0])  # Why the value is not the same as the doc?
         return result[1]
-
-        # waitingList = []
-        # valueDict = {}
-        # gameTree = []
-
-        # gameTree.append([gameState, -1, -1, -1, float("inf")])  # [state, father, agent, depth, value]
-        # actions = gameState.getLegalActions()
-        # waitingList.append([0, len(actions)])  # [node in tree, unexpanded nodes]
-        # # for action in actions:
-        #     # waitingList.append([gameState.generateSuccessor(0, action), 0, 0, 0])   # [state, father, agent, depth, unexpanded nodes]
-
-        # while len(waitingList) > 0:
-        #     newNode = waitingList[-1]
-        #     # nodeNum = len(gameTree)
-        #     if newNode[2] == agentNum-1 and newNode[3] == depth-1:
-        #         # Leaf
-        #         value = self.evaluationFunction(newNode[0])
-        #         gameTree[newNode[0]][4] = value
-        #         waitingList.pop()
-        #         father = gameTree[newNode[0]][1]
-        #     else:
-        #         # gameTree.append([newNode, float("-inf")])
-        #         currentAgent = newNode[2]+1
-        #         currentDepth = newNode[3]
-        #         if currentAgent == agentNum:
-        #             currentAgent -= agentNum
-        #             currentDepth += 1
-        #         actions = newNode[0].getLegalActions(currentAgent)
-        #         for action in actions:
-        #             waitingList.append([newNode[0].generateSuccessor(currentAgent, action), nodeNum, currentAgent, currentDepth])
-
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -422,9 +321,9 @@ def betterEvaluationFunction(currentGameState):
     position = currentGameState.getPacmanPosition()
     foodGrid = currentGameState.getFood()
     ghostStates = currentGameState.getGhostStates()
-    # foodDis = [manhattanDistance(position, food) for food in foodGrid]
+    foodDis = [manhattanDistance(position, food) for food in foodGrid]
     if len(foodGrid.asList()) == 0:
-        return 1
+        return len(ghostStates)+5
     xList, yList = zip(*foodGrid.asList())
     left = min(xList)
     right = max(xList)
@@ -443,16 +342,17 @@ def betterEvaluationFunction(currentGameState):
         cost += right
     else:
         cost += left
-    value = len(ghostStates)/cost
+    value = len(ghostStates)/cost - len(xList)
+    # value = 4/(sum(foodDis))
 
     ghostDis = [manhattanDistance(position, ghostState.getPosition()) for ghostState in ghostStates]
     for index in range(0, len(ghostStates)):
         dis = manhattanDistance(position, ghostStates[index].getPosition())
         if dis == 0:
-            value -= 1.1
+            value -= 6
         else:
             if dis < 6 and ghostStates[index].scaredTimer < dis:
-                value -= 3/dis
+                value -= 4/dis
 
     return value
     util.raiseNotDefined()
