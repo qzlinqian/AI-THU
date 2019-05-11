@@ -1,3 +1,4 @@
 reqs
 .idea
 __pycache__
+*.token
