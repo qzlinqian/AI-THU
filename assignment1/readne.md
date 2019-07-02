@@ -1,5 +1,7 @@
 ## Classification
 
+Details about this assignment can be found [on the course webpage](http://cs231n.github.io/), under Assignment #1 of Spring 2019.
+
 ### Inline Questions
 
 #### Inline Question 3 in knn.ipynb
@@ -16,7 +18,7 @@ $\color{blue}{\textit  Answer:}$
 2, 4
 
 
-$\color{blue}{\textit  Explanation:}​$
+$\color{blue}{\textit  Explanation:}$
 1. The shape of the decision boundary of k-NN depends on the real boundaries of the different classes. Namely, if the boundary between two classes is round, the decision will also be round.
 2. If we use training data as test set, the result of 1-NN would always be the exact same point. Thus, the error is 0. While for 5-NN, the error can be greater than 0.
 3. That is false. Take my running result as example, when the test data set is X_train_folds[1], and the training set is the other folds, the accuracy of 1-NN is 0.257000, while that of 5-NN is 0.266000.
@@ -26,7 +28,7 @@ $\color{blue}{\textit  Explanation:}​$
 
 > Describe what your visualized SVM weights look like, and offer a brief explanation for why they look they way that they do.
 
-$\color{blue}{\textit Answer:}​$ 
+$\color{blue}{\textit Answer:}$ 
 
 * They are ambiguous, but we can find some features of the class they present from the figure. Namely, they are just like some low-resolution templates. That is because of sampling, which introduces noise.
 * Many of the figures are symmetrical, e.g., in the horse case, it seems that the horse has two heads. That is because the result depends heavily on the layout of the image, which is a weakness of this method.
@@ -45,8 +47,8 @@ $\color{blue}{\textit Answer:}​$
 
 #### SVM
 
-* We can define the score function as, $s = X \cdot W​$. The loss of the *i* th element is $L_i = \sum_{j \ne y_i}{max(0, s_{i,j} - s_{i,y_i} + \Delta)}​$. So $loss = \sum L_i + \lambda \cdot \sum_{i,j} W^2​$.
-* $\frac{\partial L_i}{\partial s_{i,j}} = \begin{cases} 0 &,  s_{i,j} - s_{i,y_i} + \Delta<0 \\ 1 &, j \ne y_i \\ -num(s_{i,j} - s_{i,y_i} + \Delta>0) & ,j=y_i \end{cases}​$.
+* We can define the score function as, $s = X \cdot W$. The loss of the *i* th element is $L_i = \sum_{j \ne y_i}{max(0, s_{i,j} - s_{i,y_i} + \Delta)}$. So $loss = \sum L_i + \lambda \cdot \sum_{i,j} W^2$.
+* $\frac{\partial L_i}{\partial s_{i,j}} = \begin{cases} 0 &,  s_{i,j} - s_{i,y_i} + \Delta<0 \\ 1 &, j \ne y_i \\ -num(s_{i,j} - s_{i,y_i} + \Delta>0) & ,j=y_i \end{cases}$.
 * $\frac{\partial s_{i,j}}{\partial W_{:,j}} = X[i,:]$, and $dW[:,j] = \sum \frac{\partial L_i}{\partial W_{:,j}} = \sum \frac{\partial L_i}{\partial s_{i,j}} \cdot \frac{\partial s_{i,j}}{\partial W_{:,j}}$. The $dW$ should also add the regulation by $+2\lambda W$.
 
 #### Softmax
