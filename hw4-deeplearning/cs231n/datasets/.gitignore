@@ -1,0 +1,9 @@
+cifar-10-batches-py/*
+tiny-imagenet-100-A*
+tiny-imagenet-100-B*
+tiny-100-A-pretrained/*
+coco_captioning/*
+MNIST_data/*
+imagenet_val_25.npz
+squeezenet.ckpt.data-00000-of-00001
+squeezenet.ckpt.index
